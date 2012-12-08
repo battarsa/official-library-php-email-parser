@@ -252,6 +252,11 @@ class PlancakeEmailParser {
             // if here, we missed the text/plain content-type (probably it was
             // in the header), thus we assume the whole body is what we are after
             $body = implode("\n", $this->rawBodyLines);
+            // try to find content type and encoding in headers
+            if(preg_match('/charset=(.*)/i', $this->getHeader('Content-Type'), $matches)) {
+                $charset = strtoupper(trim($matches[1], '"')); 
+            }                 
+            $contentTransferEncoding = $this->getHeader('Content-Transfer-Encoding');
         }
 
         // removing trailing new lines
