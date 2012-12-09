@@ -219,14 +219,12 @@ class PlancakeEmailParser {
                 
                 if(preg_match('/charset=([^; ]*)/i', $line, $matches)) {
                     $charset = strtoupper(trim($matches[1], '"')); 
-        echo "AA $charset\n";
                 }       
                 
             } else if ($detectedContentType && $waitingForContentStart) {
                 
                 if(preg_match('/charset=([^; ]*)/i', $line, $matches)) {
                     $charset = strtoupper(trim($matches[1], '"')); 
-        echo "BB $charset\n";
                 }                 
                 
                 if ($contentTransferEncoding == null && preg_match('/^Content-Transfer-Encoding: ?(.*)/i', $line, $matches)) {
@@ -257,7 +255,6 @@ class PlancakeEmailParser {
             // try to find content type and encoding in headers
             if(preg_match('/charset=([^; ]*)/i', $this->getHeader('Content-Type'), $matches)) {
                 $charset = strtoupper(trim($matches[1], '"')); 
-        echo "CC $charset\n";
             }                 
             $contentTransferEncoding = $this->getHeader('Content-Transfer-Encoding');
         }
