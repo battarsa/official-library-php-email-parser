@@ -217,14 +217,16 @@ class PlancakeEmailParser {
                     $detectedContentType = true;
                 }
                 
-                if(preg_match('/charset=(.*)/i', $line, $matches)) {
+                if(preg_match('/charset=([^; ]*)/i', $line, $matches)) {
                     $charset = strtoupper(trim($matches[1], '"')); 
+        echo "AA $charset\n";
                 }       
                 
             } else if ($detectedContentType && $waitingForContentStart) {
                 
-                if(preg_match('/charset=(.*)/i', $line, $matches)) {
+                if(preg_match('/charset=([^; ]*)/i', $line, $matches)) {
                     $charset = strtoupper(trim($matches[1], '"')); 
+        echo "BB $charset\n";
                 }                 
                 
                 if ($contentTransferEncoding == null && preg_match('/^Content-Transfer-Encoding: ?(.*)/i', $line, $matches)) {
@@ -253,8 +255,9 @@ class PlancakeEmailParser {
             // in the header), thus we assume the whole body is what we are after
             $body = implode("\n", $this->rawBodyLines);
             // try to find content type and encoding in headers
-            if(preg_match('/charset=(.*)/i', $this->getHeader('Content-Type'), $matches)) {
+            if(preg_match('/charset=([^; ]*)/i', $this->getHeader('Content-Type'), $matches)) {
                 $charset = strtoupper(trim($matches[1], '"')); 
+        echo "CC $charset\n";
             }                 
             $contentTransferEncoding = $this->getHeader('Content-Transfer-Encoding');
         }
@@ -266,14 +269,8 @@ class PlancakeEmailParser {
             $body = base64_decode($body);
         else if ($contentTransferEncoding == 'quoted-printable')
             $body = quoted_printable_decode($body);        
-        
         if($charset != 'UTF-8') {
-            // FORMAT=FLOWED, despite being popular in emails, it is not
-            // supported by iconv
-            $charset = str_replace("FORMAT=FLOWED", "", $charset);
-            
             $body = iconv($charset, 'UTF-8//TRANSLIT', $body);
-            
             if ($body === FALSE) { // iconv returns FALSE on failure
                 $body = utf8_encode($body);
             }
